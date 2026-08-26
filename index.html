@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D Network Viewer | SCALES</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="css/portal.css?v=20260822n" rel="stylesheet" />
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-dark border-bottom border-secondary px-3"
+      style="height: var(--header-h); background: #0a1020"
+    >
+      <span class="navbar-brand mb-0">3D Network Viewer</span>
+      <div class="d-flex align-items-center gap-3">
+        <div class="dropdown">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary dropdown-toggle"
+            id="btn-export"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            title="Download figures as PNG"
+          >
+            Export
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end export-menu" id="export-menu" aria-labelledby="btn-export">
+            <li><h6 class="dropdown-header">Panels</h6></li>
+            <li><button type="button" class="dropdown-item" data-export="profile">Profile / hodograph</button></li>
+            <li><button type="button" class="dropdown-item" data-export="timeseries">Time series</button></li>
+            <li><button type="button" class="dropdown-item" data-export="section">Cross-section</button></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><h6 class="dropdown-header">Maps &amp; 3D</h6></li>
+            <li>
+              <button type="button" class="dropdown-item" data-export="plan" title="Uses Poll / plan-map height AGL">
+                Plan map (horizontal field)
+              </button>
+            </li>
+            <li>
+              <button type="button" class="dropdown-item" data-export="view3d" title="Screenshot of the current camera view">
+                3D view (as shown)
+              </button>
+            </li>
+            <li>
+              <button type="button" class="dropdown-item" data-export="view3d_light" title="Same camera, light paper background">
+                3D view (light background)
+              </button>
+            </li>
+          </ul>
+        </div>
+        <button type="button" class="btn btn-sm btn-help" id="btn-help" title="How to use this portal">
+          Help
+        </button>
+        <small class="text-secondary d-none d-md-inline" id="header-meta">SCALES · Oklahoma</small>
+      </div>
+    </nav>
+
+    <div class="layout">
+      <!-- Full-height left: settings (1/3) + profile/hodograph (2/3) -->
+      <div class="left-column">
+      <div class="controls-shell">
+      <aside class="controls-panel" id="controls-panel">
+        <h6>Model &amp; time</h6>
+        <div class="mb-2">
+          <label class="form-label" for="model-select">Fusion state</label>
+          <select class="form-select form-select-sm" id="model-select"></select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" id="time-label">Valid time</label>
+          <div class="time-play-row">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-time-prev-settings" title="Previous time (&lt;)">&lt;</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-play">▶</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-time-next-settings" title="Next time (&gt;)">&gt;</button>
+            <input type="range" class="form-range" id="time-slider" min="0" max="0" value="0" />
+          </div>
+        </div>
+
+        <hr />
+        <h6>Vertical frame</h6>
+        <div class="mb-2">
+          <label class="form-label" for="z-mode">Z height space</label>
+          <select class="form-select form-select-sm" id="z-mode">
+            <option value="flat" selected>Flat AGL (level base)</option>
+            <option value="terrain">Terrain-following (AGL on surface MSL)</option>
+          </select>
+          <div class="form-text text-secondary" style="font-size: 0.65rem">
+            Flat: volumes on a level floor; terrain color map only. Following: surface tilts; 100&nbsp;m AGL sits at surface+100&nbsp;m.
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label" for="vert-scale">
+            Vertical exag. <span class="threshold-readout" id="vert-readout">25×</span>
+          </label>
+          <input type="range" class="form-range" id="vert-scale" min="8" max="60" step="1" value="25" />
+        </div>
+
+        <hr />
+        <h6>Field visualization</h6>
+        <div class="mb-2">
+          <label class="form-label" for="var-3d">Field</label>
+          <select class="form-select form-select-sm" id="var-3d"></select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label" for="mode-3d">Mode</label>
+          <select class="form-select form-select-sm" id="mode-3d">
+            <option value="isosurface">Multi-layer isosurfaces</option>
+            <option value="slice">Horizontal slice</option>
+            <option value="profiles">OBS profiles (T·RH | WS·WD)</option>
+            <option value="hodographs">OBS hodographs</option>
+          </select>
+          <div class="form-text text-secondary" style="font-size: 0.65rem">
+            Profiles &amp; hodographs replace the volume. Fixed OBS-site panels on the map; click anywhere for a popup sample from the cube.
+          </div>
+        </div>
+        <div class="mb-2" id="color-scale-group">
+          <div class="form-label">Color scale (quantitative)</div>
+          <label class="form-label" for="colormap-select">Colormap</label>
+          <select class="form-select form-select-sm mb-1" id="colormap-select">
+            <option value="viridis" selected>Viridis</option>
+            <option value="plasma">Plasma</option>
+            <option value="turbo">Turbo</option>
+            <option value="coolwarm">Cool–warm</option>
+            <option value="magma">Magma</option>
+            <option value="grayscale">Grayscale</option>
+          </select>
+          <div class="axis-grid mb-1">
+            <label>vmin <input type="number" class="form-control form-control-sm" id="color-vmin" step="any" placeholder="data" /></label>
+            <label>vmax <input type="number" class="form-control form-control-sm" id="color-vmax" step="any" placeholder="data" /></label>
+          </div>
+          <label class="form-label" for="contour-interval">
+            Contour Δ <span class="threshold-readout" id="contour-interval-hint">auto levels</span>
+          </label>
+          <div class="range-with-edit mb-1">
+            <input type="number" class="form-control form-control-sm" id="contour-interval" min="0.1" step="any" placeholder="e.g. 5" />
+            <button type="button" class="btn btn-sm btn-outline-info" id="btn-apply-contours" title="Fill iso layers from vmin→vmax by Δ">Apply</button>
+          </div>
+          <div class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" id="color-from-map" checked />
+            <label class="form-check-label" for="color-from-map">Color iso layers from colormap</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="poll-cursor" checked />
+            <label class="form-check-label" for="poll-cursor">Polling cursor readout</label>
+          </div>
+          <label class="form-label mt-1" for="poll-height">
+            Poll / plan-map height AGL <span class="threshold-readout" id="poll-height-readout">100 m</span>
+          </label>
+          <input type="range" class="form-range" id="poll-height" min="0" max="1500" step="10" value="100" />
+          <div class="form-text text-secondary" style="font-size: 0.65rem">
+            Sets cursor sample height and the vertical level for Export → Plan map.
+          </div>
+        </div>
+        <div id="iso-group">
+          <div class="mb-2">
+            <label class="form-label" for="n-layers">
+              Layers <span class="threshold-readout" id="n-layers-readout">3</span>
+            </label>
+            <input type="range" class="form-range" id="n-layers" min="1" max="5" step="1" value="3" />
+          </div>
+          <div class="form-label layer-values-hint">Color · iso value · opacity</div>
+          <div id="layer-values" class="mb-2"></div>
+          <div class="mb-2">
+            <label class="form-label" for="focus-slider">
+              Highlight <span class="threshold-readout" id="focus-readout">all</span>
+            </label>
+            <input type="range" class="form-range" id="focus-slider" min="-1" max="2" step="1" value="-1" />
+          </div>
+        </div>
+        <div id="slice-group" style="display: none" class="mb-2">
+          <label class="form-label" for="slice-slider">
+            Slice height <span class="threshold-readout" id="slice-readout">—</span>
+          </label>
+          <input type="range" class="form-range" id="slice-slider" min="0" max="75" value="25" />
+          <label class="form-label mt-2" for="opacity-slider">
+            Slice opacity <span class="threshold-readout" id="opacity-readout">0.72</span>
+          </label>
+          <input type="range" class="form-range" id="opacity-slider" min="0.15" max="1" step="0.01" value="0.72" />
+        </div>
+
+        <hr />
+        <h6>Series (profile + time series)</h6>
+        <div class="mb-2">
+          <label class="form-label" for="series-var">Variable</label>
+          <select class="form-select form-select-sm" id="series-var">
+            <option value="temperature">Temperature</option>
+            <option value="wind_speed" selected>Wind speed</option>
+            <option value="relative_humidity">Relative humidity</option>
+            <option value="u_wind">u wind</option>
+            <option value="v_wind">v wind</option>
+          </select>
+        </div>
+        <div class="mb-2 src-toggles" id="src-toggles">
+          <div class="src-chip src-uas">
+            <label class="src-chip-lab">
+              <input type="checkbox" class="series-src" value="UAS" checked />
+              UAS
+            </label>
+            <input type="color" class="series-color" data-src="UAS" value="#B900C7" title="UAS color" />
+          </div>
+          <div class="src-chip src-hrrr">
+            <label class="src-chip-lab">
+              <input type="checkbox" class="series-src" value="HRRR" checked />
+              HRRR
+            </label>
+            <input type="color" class="series-color" data-src="HRRR" value="#777777" title="HRRR color" />
+          </div>
+          <div class="src-chip src-a">
+            <label class="src-chip-lab">
+              <input type="checkbox" class="series-src" value="A" checked />
+              A
+            </label>
+            <input type="color" class="series-color" data-src="A" value="#DE8A00" title="A color" />
+          </div>
+          <div class="src-chip src-b">
+            <label class="src-chip-lab">
+              <input type="checkbox" class="series-src" value="B" />
+              B
+            </label>
+            <input type="color" class="series-color" data-src="B" value="#3018A9" title="B color" />
+          </div>
+          <div class="src-chip src-c">
+            <label class="src-chip-lab">
+              <input type="checkbox" class="series-src" value="C" />
+              C
+            </label>
+            <input type="color" class="series-color" data-src="C" value="#88CCEE" title="C color" />
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label" for="ts-height">
+            TS height AGL <span class="threshold-readout" id="ts-height-readout">100 m</span>
+          </label>
+          <div class="range-with-edit">
+            <input type="range" class="form-range" id="ts-height" min="0" max="1500" step="10" value="100" />
+            <input type="number" class="form-control form-control-sm num-edit" id="ts-height-num" min="0" max="1500" step="10" value="100" />
+          </div>
+        </div>
+        <div class="mb-2 axis-limits">
+          <div class="form-label">Profile axes (editable)</div>
+          <div class="axis-grid">
+            <label>X min <input type="number" class="form-control form-control-sm" id="prof-xmin" step="any" placeholder="auto" /></label>
+            <label>X max <input type="number" class="form-control form-control-sm" id="prof-xmax" step="any" placeholder="auto" /></label>
+            <label>Z min <input type="number" class="form-control form-control-sm" id="prof-zmin" step="10" value="0" /></label>
+            <label>Z max <input type="number" class="form-control form-control-sm" id="prof-zmax" step="10" value="1500" /></label>
+          </div>
+        </div>
+        <div class="mb-2 axis-limits">
+          <div class="form-label">Time series Y (editable)</div>
+          <div class="axis-grid">
+            <label>Y min <input type="number" class="form-control form-control-sm" id="ts-ymin" step="any" placeholder="auto" /></label>
+            <label>Y max <input type="number" class="form-control form-control-sm" id="ts-ymax" step="any" placeholder="auto" /></label>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label" for="site-select">Jump to site</label>
+          <select class="form-select form-select-sm" id="site-select"></select>
+        </div>
+
+        <hr />
+        <h6>Layers &amp; features</h6>
+        <div class="form-check form-switch mb-1">
+          <input class="form-check-input" type="checkbox" id="toggle-volume" checked />
+          <label class="form-check-label" for="toggle-volume">Volume layers</label>
+        </div>
+        <div class="form-check form-switch mb-1">
+          <input class="form-check-input" type="checkbox" id="toggle-terrain" checked />
+          <label class="form-check-label" for="toggle-terrain">Terrain</label>
+        </div>
+        <div class="mb-2" id="terrain-opacity-group">
+          <label class="form-label" for="terrain-opacity">
+            Terrain opacity <span class="threshold-readout" id="terrain-opacity-readout">0.25</span>
+          </label>
+          <div class="range-with-edit">
+            <input type="range" class="form-range" id="terrain-opacity" min="0.05" max="1" step="0.01" value="0.25" />
+            <input type="number" class="form-control form-control-sm num-edit" id="terrain-opacity-num" min="0.05" max="1" step="0.01" value="0.25" />
+          </div>
+        </div>
+        <div class="form-check form-switch mb-1">
+          <input class="form-check-input" type="checkbox" id="toggle-geo" checked />
+          <label class="form-check-label" for="toggle-geo">OK outline / counties / roads</label>
+        </div>
+        <div class="form-check form-switch mb-1">
+          <input class="form-check-input" type="checkbox" id="toggle-sites" checked />
+          <label class="form-check-label" for="toggle-sites">Profilers</label>
+        </div>
+        <div class="form-check form-switch mb-1">
+          <input class="form-check-input" type="checkbox" id="toggle-axes" checked />
+          <label class="form-check-label" for="toggle-axes">Domain scale box</label>
+        </div>
+        <div class="form-check form-switch mb-2">
+          <input class="form-check-input" type="checkbox" id="toggle-colorbar" checked />
+          <label class="form-check-label" for="toggle-colorbar">Colorbars</label>
+        </div>
+      </aside>
+      <div class="controls-scroll-hint" id="controls-scroll-hint" aria-hidden="true">
+        <span>Scroll for more settings</span>
+      </div>
+      </div>
+
+      <!-- Profile / hodograph (2/3 of left column) -->
+      <section class="panel profile-panel" id="profile-panel" data-mode="site">
+        <div class="panel-head">
+          <div class="profile-head-left">
+            <select class="form-select form-select-sm profile-view-select" id="profile-view-mode" title="Plot type">
+              <option value="profile" selected>Profile</option>
+              <option value="hodograph">Hodograph</option>
+            </select>
+            <span class="probe-badge" id="probe-badge" data-mode="site">OBS SITE</span>
+          </div>
+          <div class="panel-head-right">
+            <span class="panel-sub" id="profile-subtitle"></span>
+            <button type="button" class="btn btn-sm btn-export-panel" data-export="profile" title="Export PNG">⬇</button>
+          </div>
+        </div>
+        <div class="profile-body">
+          <div id="plotly-sounding" class="panel-plot"></div>
+          <aside id="profile-legend" class="line-legend" aria-label="Shared series legend">
+            <span class="lg-note">Profile + TS legend</span>
+          </aside>
+        </div>
+      </section>
+      </div>
+
+      <!-- Top-right: 3D viewer -->
+      <div class="viewer-column">
+        <div id="viewport3d">
+          <div id="viewport2d" class="viewport-2d" hidden>
+            <div id="plotly-plan" class="viewport-2d-plot"></div>
+          </div>
+          <div id="map-sample-popup" class="map-sample-popup" hidden>
+            <div class="map-sample-popup-head">
+              <span id="map-sample-popup-title">Sample</span>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="map-sample-popup-close" aria-label="Close">✕</button>
+            </div>
+            <canvas id="map-sample-popup-canvas" width="360" height="270"></canvas>
+          </div>
+          <div class="viewport-overlay">
+            <div class="viewport-hud-left">
+              <div class="hud-colorbar" id="hud-colorbar">
+                <div class="hud-cb-title" id="hud-cb-title">field</div>
+                <div class="hud-cb-bar" aria-hidden="true"></div>
+                <div class="hud-cb-labels">
+                  <span id="hud-cb-min">—</span>
+                  <span id="hud-cb-max">—</span>
+                </div>
+              </div>
+              <div class="hud-poll" id="hud-poll" hidden>
+                <div class="hud-poll-title">Cursor sample</div>
+                <div class="hud-poll-line" id="hud-poll-xy">—</div>
+                <div class="hud-poll-line" id="hud-poll-zv">—</div>
+              </div>
+              <div class="hud-elev" id="hud-elev">
+                <div class="hud-cb-title">Terrain elev. (m MSL)</div>
+                <div class="hud-elev-bar" aria-hidden="true"></div>
+                <div class="hud-cb-labels">
+                  <span id="hud-elev-min">150</span>
+                  <span id="hud-elev-max">500</span>
+                </div>
+              </div>
+            </div>
+            <div class="viewport-top-right">
+              <div class="compass" id="compass" title="Compass rotates with view">
+                <div class="compass-ring">
+                  <span class="compass-n">N</span>
+                  <span class="compass-needle" id="compass-needle"></span>
+                </div>
+              </div>
+              <div class="viewport-toolbar">
+                <select class="form-select form-select-sm view-dim-select" id="view-dim" title="3D scene or 2D plan map">
+                  <option value="3d" selected>3D</option>
+                  <option value="2d">2D map</option>
+                </select>
+                <button type="button" class="btn btn-sm" id="cam-reset" title="From south, N up, 15° elev">Reset</button>
+                <button type="button" class="btn btn-sm" id="cam-side" title="From west">W</button>
+                <button type="button" class="btn btn-sm" id="cam-top" title="Bird's-eye">Top</button>
+                <button type="button" class="btn btn-sm" data-export="plan" title="Export plan map PNG">Map</button>
+                <button type="button" class="btn btn-sm" data-export="view3d" title="Export 3D view PNG">3D</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="viewer-timebar" id="viewer-timebar">
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-time-prev" title="Previous time (,)">&lt;</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-play-viewer" title="Play / pause time animation">▶</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-time-next" title="Next time (.)">&gt;</button>
+          <input type="range" class="form-range" id="time-slider-viewer" min="0" max="0" value="0" aria-label="Valid time" />
+          <span class="viewer-time-label" id="time-label-viewer">—</span>
+        </div>
+      </div>
+
+      <section class="panel ts-panel">
+        <div class="panel-head">
+          <span class="panel-title">Time series</span>
+          <div class="panel-head-right">
+            <span class="panel-sub" id="ts-subtitle">@ height</span>
+            <button type="button" class="btn btn-sm btn-export-panel" data-export="timeseries" title="Export PNG">⬇</button>
+          </div>
+        </div>
+        <div id="plotly-ts" class="panel-plot"></div>
+      </section>
+
+      <section class="panel section-panel">
+        <div class="panel-head">
+          <span class="panel-title">Cross-section</span>
+          <div class="section-actions">
+            <select class="form-select form-select-sm section-mode-select" id="section-mode" title="Cross-section type">
+              <option value="spatial" selected>Spatial</option>
+              <option value="timeheight">Time–height</option>
+            </select>
+            <button type="button" class="btn btn-sm btn-outline-info" id="btn-section">
+              Click to draw xsection line
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-clear-section" disabled>
+              Clear section
+            </button>
+            <button type="button" class="btn btn-sm btn-export-panel" data-export="section" title="Export PNG">⬇</button>
+          </div>
+        </div>
+        <div class="panel-sub section-sub" id="section-subtitle">Draw a transect in the 3D view</div>
+        <div id="plotly-section" class="panel-plot"></div>
+      </section>
+    </div>
+
+    <div class="help-modal" id="help-modal" hidden>
+      <div class="help-modal-backdrop" data-help-close></div>
+      <div class="help-modal-card" role="dialog" aria-modal="true" aria-labelledby="help-title">
+        <div class="help-modal-head">
+          <h2 id="help-title">How to use the portal</h2>
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-help-close aria-label="Close">✕</button>
+        </div>
+        <div class="help-modal-body">
+          <p class="help-lead">Interactive case viewer for SCALES fusion states vs UAS and HRRR on the Oklahoma domain.</p>
+          <h3>3D view</h3>
+          <ul>
+            <li><strong>Orbit</strong> — left-drag to rotate; scroll to zoom; right-drag (or middle-drag) to pan.</li>
+            <li><strong>Probe</strong> — click a profiler marker or any floor point to sample profile, time series, and hodograph at that location (nearby sites snap). Purple pillars = UAS obs available at that valid time; gray = no obs.</li>
+            <li><strong>Z height space</strong> — Flat AGL keeps the floor level; Terrain-following tilts the surface with MSL (Oklahoma outline stays flat).</li>
+            <li><strong>Camera</strong> — Reset from the south (N up); W from the west; Top bird’s-eye. Compass needle points north.</li>
+            <li><strong>Time</strong> — bar under the map (or in Settings): scrub, play, or use <kbd>&lt;</kbd>/<kbd>&gt;</kbd> buttons. Keys <kbd>,</kbd>/<kbd>.</kbd> (or <kbd>&lt;</kbd>/<kbd>&gt;</kbd>, or ←/→) also step one valid time. Iso-layer values stay fixed while animating.</li>
+            <li><strong>Cross-section</strong> — <em>Spatial</em>: draw two ground points for a transect; Clear removes it. <em>Time–height</em>: field vs height for the active probe across all valid times (same site/grid as profile &amp; time series).</li>
+            <li><strong>Volume / terrain</strong> — multi-layer isosurfaces or a horizontal slice; toggle volume, terrain, geo, sites, and the domain scale box. Terrain opacity is under Layers.</li>
+          </ul>
+          <h3>What is plotted</h3>
+          <ul>
+            <li><strong>Fusion state</strong> — which 3D volume is rendered (HRRR / A / B / C). Also sets the default A/B/C series chip (you can then toggle A/B/C freely for overlays on profile &amp; time series).</li>
+            <li><strong>Field</strong> — 3D variable for isosurfaces/slices. Use colormap, vmin/vmax, and contour Δ under Color scale for quantitative coloring.</li>
+            <li><strong>Series variable</strong> — quantity on the <em>profile</em> X-axis and the <em>time series</em> Y-axis (not the 3D field unless you match them).</li>
+            <li><strong>Source chips</strong> (UAS, HRRR, A, B, C) — checkboxes turn series on/off on profile, hodograph, and time series. A/B/C sample the analysis cubes at the probe; UAS comes from obs soundings. Changing Fusion state resets A/B/C to that version by default.</li>
+            <li><strong>Profile / Hodograph</strong> — left-pane selector. Profile = Series variable vs height AGL. Hodograph = wind components <em>u</em> (+east) and <em>v</em> (+north) starting at ≥ 50&nbsp;m AGL; rings are constant speed; open circle marks the first level above that floor.</li>
+            <li><strong>TS height AGL</strong> — extraction height for the time series (slider or typed number).</li>
+            <li><strong>Jump to site</strong> — sets the probe to that profiler.</li>
+          </ul>
+          <h3>Colors</h3>
+          <ul>
+            <li><strong>Color scale</strong> — colormap (Viridis, Plasma, …), editable vmin/vmax, contour interval Δ + Apply to fill iso layers, optional “color layers from colormap,” and a polling cursor readout. Cursor x/y follow the pointer; sample height is set only by <em>Poll height AGL</em>.</li>
+            <li><strong>Iso layers</strong> — color picker (disables map coloring), typed iso value, and per-layer opacity.</li>
+            <li><strong>Series colors</strong> — next to each UAS/HRRR/A/B/C chip is a color picker for profile, hodograph, and time series traces (defaults follow Suite 2).</li>
+            <li><strong>Terrain</strong> — monochrome elevation (black low → white high) with optional hillshade; elev. colorbar follows the Colorbars toggle and Terrain on/off.</li>
+          </ul>
+          <h3>Editable limits &amp; values</h3>
+          <ul>
+            <li><strong>Iso layer values</strong> — type the level; opacity is the slider on that row. Levels stay fixed while time plays.</li>
+            <li><strong>Slice / terrain opacity</strong> — slice mode has a slice opacity slider; terrain has its own control under Layers.</li>
+            <li><strong>Profile axes</strong> — Profile X min/max and Z min/max (AGL). Leave X blank for auto-range; Z defaults 0–1500 m.</li>
+            <li><strong>Time series Y</strong> — optional Y min/max (blank = auto).</li>
+            <li><strong>Vertical exag.</strong> — stretches height in the 3D scene only.</li>
+          </ul>
+          <h3>Export</h3>
+          <ul>
+            <li><strong>Panels</strong> — Export menu or ⬇ on each panel downloads a light-background PNG (profile/hodograph, time series, cross-section / time–height).</li>
+            <li><strong>Field mode</strong> — Isosurfaces / horizontal slice, or <em>OBS profiles</em> (fixed T·RH | WS·WD) / <em>OBS hodographs</em> (no volume). Click the map for a popup sample at any point.</li>
+            <li><strong>3D / 2D map</strong> — Viewport toggle. 2D shows a plan map; in profile/hodograph modes the sticks appear on the map.</li>
+            <li><strong>Plan map export</strong> — lon–lat heatmap at <em>Poll / plan-map height AGL</em> (plus profile/hodo insets when that mode is active).</li>
+            <li><strong>3D view</strong> — PNG of the current camera (isosurfaces or tilted slice as shown). Use <em>light background</em> for slides; keep dark for matching the portal.</li>
+          </ul>
+          <h3>Bottom panels</h3>
+          <ul>
+            <li><strong>Time series</strong> — enabled sources at TS height for the active probe across valid times.</li>
+            <li><strong>Cross-section</strong> — spatial transect of the current 3D field, or time–height at the probe for the fusion-state field.</li>
+          </ul>
+          <p class="help-foot">Data are a pre-exported case (not a live network feed). Innovations use lagged HRRR backgrounds consistent with the analysis volumes.</p>
+        </div>
+      </div>
+    </div>
+
+    <input type="hidden" id="time-slider-main" value="0" />
+    <button type="button" id="btn-play-main" style="display: none"></button>
+    <span id="time-bar-label" style="display: none"></span>
+    <span id="network-status" style="display: none" aria-hidden="true"></span>
+    <span id="view-status" style="display: none" aria-hidden="true"></span>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/sounding_plotter.js?v=20260822n"></script>
+    <script type="module" src="js/portal_app.js?v=20260822n"></script>
+  </body>
+</html>

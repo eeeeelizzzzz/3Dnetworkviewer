@@ -1,0 +1,390 @@
+{
+  "title": "3D Network Viewer",
+  "network": "SCALES",
+  "region": "Oklahoma",
+  "case_start": "2024-09-12T23:00:00Z",
+  "case_end": "2024-09-13T06:00:00Z",
+  "source_cubes": {
+    "B": "data/processed/cubes/analysis_B_case.nc",
+    "A": "data/processed/cubes/analysis_A_case.nc",
+    "C": "data/processed/cubes/analysis_C_case.nc",
+    "hrrr": "data/processed/cubes/hrrr_lagged_case.nc"
+  },
+  "times": [
+    {
+      "tag": "20240912_2300",
+      "label": "2024-09-12 23:00 UTC",
+      "iso": "2024-09-12T23:00:00Z"
+    },
+    {
+      "tag": "20240913_0000",
+      "label": "2024-09-13 00:00 UTC",
+      "iso": "2024-09-13T00:00:00Z"
+    },
+    {
+      "tag": "20240913_0100",
+      "label": "2024-09-13 01:00 UTC",
+      "iso": "2024-09-13T01:00:00Z"
+    },
+    {
+      "tag": "20240913_0200",
+      "label": "2024-09-13 02:00 UTC",
+      "iso": "2024-09-13T02:00:00Z"
+    },
+    {
+      "tag": "20240913_0300",
+      "label": "2024-09-13 03:00 UTC",
+      "iso": "2024-09-13T03:00:00Z"
+    },
+    {
+      "tag": "20240913_0400",
+      "label": "2024-09-13 04:00 UTC",
+      "iso": "2024-09-13T04:00:00Z"
+    },
+    {
+      "tag": "20240913_0500",
+      "label": "2024-09-13 05:00 UTC",
+      "iso": "2024-09-13T05:00:00Z"
+    },
+    {
+      "tag": "20240913_0600",
+      "label": "2024-09-13 06:00 UTC",
+      "iso": "2024-09-13T06:00:00Z"
+    }
+  ],
+  "sites": [
+    {
+      "id": "BIXB",
+      "name": "Bixby (BIXB)",
+      "lat": 35.966,
+      "lon": -95.863,
+      "x_km": 80.004,
+      "y_km": 23.226
+    },
+    {
+      "id": "BLAC",
+      "name": "Blackwell (BLAC)",
+      "lat": 36.754,
+      "lon": -97.255,
+      "x_km": -45.383,
+      "y_km": 110.694
+    },
+    {
+      "id": "CHAN",
+      "name": "Chandler (CHAN)",
+      "lat": 35.653,
+      "lon": -96.804,
+      "x_km": -4.758,
+      "y_km": -11.517
+    },
+    {
+      "id": "GUTH",
+      "name": "Guthrie (GUTH)",
+      "lat": 35.849,
+      "lon": -97.48,
+      "x_km": -65.65,
+      "y_km": 10.239
+    },
+    {
+      "id": "NRMN",
+      "name": "Norman (NRMN)",
+      "lat": 35.24,
+      "lon": -97.467,
+      "x_km": -64.479,
+      "y_km": -57.36
+    },
+    {
+      "id": "OKEM",
+      "name": "Okemah (OKEM)",
+      "lat": 35.435,
+      "lon": -96.269,
+      "x_km": 43.433,
+      "y_km": -35.715
+    },
+    {
+      "id": "SKIA",
+      "name": "Skiatook (SKIA)",
+      "lat": 36.4153,
+      "lon": -96.03706,
+      "x_km": 64.325,
+      "y_km": 73.098
+    },
+    {
+      "id": "STILL",
+      "name": "Stillwater (STILL)",
+      "lat": 36.121,
+      "lon": -97.1,
+      "x_km": -31.421,
+      "y_km": 40.431
+    },
+    {
+      "id": "URB_S_UP",
+      "name": "Urban - Open low-rise S Upstream (URB_S_UP)",
+      "lat": 36.013,
+      "lon": -95.883,
+      "x_km": 78.203,
+      "y_km": 28.443
+    },
+    {
+      "id": "WASH",
+      "name": "Washington (Kessler / KAEFS) (WASH)",
+      "lat": 34.983,
+      "lon": -97.521,
+      "x_km": -69.344,
+      "y_km": -85.887
+    },
+    {
+      "id": "WYNO",
+      "name": "Wynona (WYNO)",
+      "lat": 36.518,
+      "lon": -96.342,
+      "x_km": 36.857,
+      "y_km": 84.498
+    }
+  ],
+  "models": [
+    {
+      "id": "B",
+      "label": "Version B \u2014 ML Residual Blend"
+    },
+    {
+      "id": "A",
+      "label": "Version A \u2014 Multi-Scale 3D-Var"
+    },
+    {
+      "id": "C",
+      "label": "Version C \u2014 ML Multi-Obs Generator"
+    },
+    {
+      "id": "hrrr",
+      "label": "HRRR Background (x_b)"
+    }
+  ],
+  "variables": [
+    {
+      "id": "wind_speed",
+      "label": "Wind speed",
+      "unit": "m s\u207b\u00b9",
+      "default_iso": 10.0,
+      "min": 0.004,
+      "max": 14.323
+    },
+    {
+      "id": "temperature",
+      "label": "Temperature",
+      "unit": "\u00b0C",
+      "default_iso": 22.0,
+      "min": 12.876,
+      "max": 31.784
+    },
+    {
+      "id": "relative_humidity",
+      "label": "Relative humidity",
+      "unit": "%",
+      "default_iso": 70.0,
+      "min": 19.958,
+      "max": 95.122
+    },
+    {
+      "id": "theta_k",
+      "label": "Potential temperature",
+      "unit": "K",
+      "default_iso": 301.5,
+      "min": 290.853,
+      "max": 305.644
+    },
+    {
+      "id": "u_wind",
+      "label": "u wind",
+      "unit": "m s\u207b\u00b9",
+      "default_iso": 0.0,
+      "min": -11.804,
+      "max": 5.426
+    },
+    {
+      "id": "v_wind",
+      "label": "v wind",
+      "unit": "m s\u207b\u00b9",
+      "default_iso": 8.0,
+      "min": -10.139,
+      "max": 10.376
+    }
+  ],
+  "projection": {
+    "lat0": 35.75675675675664,
+    "lon0": -96.7511754491445,
+    "vert_exag_default": 20.0,
+    "x_min": -112.4904484445653,
+    "x_max": 109.49070315271149,
+    "y_min": -139.49999999998673,
+    "y_max": 136.49999999998778,
+    "z_max_m": 1500.0
+  },
+  "volume": {
+    "shape": [
+      76,
+      47,
+      38
+    ],
+    "z_stride": 2,
+    "y_stride": 2,
+    "x_stride": 2,
+    "render_modes": [
+      "isosurface",
+      "slice"
+    ],
+    "default_variable": "wind_speed",
+    "default_mode": "isosurface",
+    "default_iso_levels": {
+      "wind_speed": [
+        8.0,
+        10.0,
+        12.0
+      ],
+      "temperature": [
+        18.0,
+        22.0,
+        26.0
+      ],
+      "relative_humidity": [
+        50.0,
+        70.0,
+        85.0
+      ],
+      "theta_k": [
+        298.0,
+        301.5,
+        304.0
+      ],
+      "u_wind": [
+        -4.0,
+        0.0,
+        4.0
+      ],
+      "v_wind": [
+        4.0,
+        8.0,
+        12.0
+      ]
+    },
+    "max_iso_layers": 5
+  },
+  "features_available": [
+    {
+      "id": "nllj_height",
+      "label": "NLLJ core height",
+      "color": "#38bdf8"
+    },
+    {
+      "id": "inversion_height",
+      "label": "Low-level inversion height",
+      "color": "#fbbf24"
+    },
+    {
+      "id": "pbl_height",
+      "label": "PBL height (\u03b8+1.5K)",
+      "color": "#a78bfa"
+    }
+  ],
+  "geo": {
+    "context": "geo/context.json",
+    "terrain": "geo/terrain.json"
+  },
+  "palette": {
+    "UAS": "#B900C7",
+    "HRRR": "#777777",
+    "A": "#DE8A00",
+    "B": "#3018A9",
+    "C": "#88CCEE"
+  },
+  "assets": {
+    "B": {
+      "20240912_2300": "volumes/B/20240912_2300.json",
+      "20240913_0000": "volumes/B/20240913_0000.json",
+      "20240913_0100": "volumes/B/20240913_0100.json",
+      "20240913_0200": "volumes/B/20240913_0200.json",
+      "20240913_0300": "volumes/B/20240913_0300.json",
+      "20240913_0400": "volumes/B/20240913_0400.json",
+      "20240913_0500": "volumes/B/20240913_0500.json",
+      "20240913_0600": "volumes/B/20240913_0600.json"
+    },
+    "A": {
+      "20240912_2300": "volumes/A/20240912_2300.json",
+      "20240913_0000": "volumes/A/20240913_0000.json",
+      "20240913_0100": "volumes/A/20240913_0100.json",
+      "20240913_0200": "volumes/A/20240913_0200.json",
+      "20240913_0300": "volumes/A/20240913_0300.json",
+      "20240913_0400": "volumes/A/20240913_0400.json",
+      "20240913_0500": "volumes/A/20240913_0500.json",
+      "20240913_0600": "volumes/A/20240913_0600.json"
+    },
+    "C": {
+      "20240912_2300": "volumes/C/20240912_2300.json",
+      "20240913_0000": "volumes/C/20240913_0000.json",
+      "20240913_0100": "volumes/C/20240913_0100.json",
+      "20240913_0200": "volumes/C/20240913_0200.json",
+      "20240913_0300": "volumes/C/20240913_0300.json",
+      "20240913_0400": "volumes/C/20240913_0400.json",
+      "20240913_0500": "volumes/C/20240913_0500.json",
+      "20240913_0600": "volumes/C/20240913_0600.json"
+    },
+    "hrrr": {
+      "20240912_2300": "volumes/hrrr/20240912_2300.json",
+      "20240913_0000": "volumes/hrrr/20240913_0000.json",
+      "20240913_0100": "volumes/hrrr/20240913_0100.json",
+      "20240913_0200": "volumes/hrrr/20240913_0200.json",
+      "20240913_0300": "volumes/hrrr/20240913_0300.json",
+      "20240913_0400": "volumes/hrrr/20240913_0400.json",
+      "20240913_0500": "volumes/hrrr/20240913_0500.json",
+      "20240913_0600": "volumes/hrrr/20240913_0600.json"
+    }
+  },
+  "feature_assets": {
+    "B": {
+      "20240912_2300": "features/B/20240912_2300.json",
+      "20240913_0000": "features/B/20240913_0000.json",
+      "20240913_0100": "features/B/20240913_0100.json",
+      "20240913_0200": "features/B/20240913_0200.json",
+      "20240913_0300": "features/B/20240913_0300.json",
+      "20240913_0400": "features/B/20240913_0400.json",
+      "20240913_0500": "features/B/20240913_0500.json",
+      "20240913_0600": "features/B/20240913_0600.json"
+    },
+    "A": {
+      "20240912_2300": "features/A/20240912_2300.json",
+      "20240913_0000": "features/A/20240913_0000.json",
+      "20240913_0100": "features/A/20240913_0100.json",
+      "20240913_0200": "features/A/20240913_0200.json",
+      "20240913_0300": "features/A/20240913_0300.json",
+      "20240913_0400": "features/A/20240913_0400.json",
+      "20240913_0500": "features/A/20240913_0500.json",
+      "20240913_0600": "features/A/20240913_0600.json"
+    },
+    "C": {
+      "20240912_2300": "features/C/20240912_2300.json",
+      "20240913_0000": "features/C/20240913_0000.json",
+      "20240913_0100": "features/C/20240913_0100.json",
+      "20240913_0200": "features/C/20240913_0200.json",
+      "20240913_0300": "features/C/20240913_0300.json",
+      "20240913_0400": "features/C/20240913_0400.json",
+      "20240913_0500": "features/C/20240913_0500.json",
+      "20240913_0600": "features/C/20240913_0600.json"
+    },
+    "hrrr": {
+      "20240912_2300": "features/hrrr/20240912_2300.json",
+      "20240913_0000": "features/hrrr/20240913_0000.json",
+      "20240913_0100": "features/hrrr/20240913_0100.json",
+      "20240913_0200": "features/hrrr/20240913_0200.json",
+      "20240913_0300": "features/hrrr/20240913_0300.json",
+      "20240913_0400": "features/hrrr/20240913_0400.json",
+      "20240913_0500": "features/hrrr/20240913_0500.json",
+      "20240913_0600": "features/hrrr/20240913_0600.json"
+    }
+  },
+  "soundings_pattern": "soundings/{tag}.json",
+  "notes": [
+    "3D volume is the selected model/time field; multi-layer isosurfaces are client-side.",
+    "Features (NLLJ / inversion / PBL heights) are precomputed height surfaces.",
+    "Terrain uses USGS 3DEP (or SRTM fallback); basemap from Natural Earth."
+  ]
+}
