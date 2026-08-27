@@ -13,7 +13,7 @@
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
-    <link href="css/portal.css?v=20260822n" rel="stylesheet" />
+    <link href="css/portal.css?v=20260826r" rel="stylesheet" />
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script type="importmap">
       {
@@ -29,8 +29,16 @@
       class="navbar navbar-dark border-bottom border-secondary px-3"
       style="height: var(--header-h); background: #0a1020"
     >
-      <span class="navbar-brand mb-0">3D Network Viewer</span>
-      <div class="d-flex align-items-center gap-3">
+      <span class="navbar-brand mb-0" id="app-brand">3D Network Viewer</span>
+      <div class="viewer-mode-toggle btn-group" role="group" aria-label="Viewer mode">
+        <button type="button" class="btn btn-sm btn-outline-secondary active" id="btn-viewer-network" data-viewer-mode="network">
+          3D Network
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-viewer-classic" data-viewer-mode="classic">
+          2D Site
+        </button>
+      </div>
+      <div class="d-flex align-items-center gap-3 ms-auto">
         <div class="dropdown">
           <button
             type="button"
@@ -66,6 +74,15 @@
             </li>
           </ul>
         </div>
+        <a
+          class="btn btn-sm btn-feedback"
+          href="https://forms.gle/9gQxcdA5und93HGb6"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Open the data viewer feedback form"
+        >
+          Feedback
+        </a>
         <button type="button" class="btn btn-sm btn-help" id="btn-help" title="How to use this portal">
           Help
         </button>
@@ -439,6 +456,134 @@
       </section>
     </div>
 
+    <div id="classic-root" class="classic-root" hidden>
+      <aside class="classic-sidebar">
+        <div class="classic-map-head">
+          <span class="classic-kicker">Domain</span>
+          <div class="classic-map-head-right">
+            <span class="classic-site-readout" id="classic-site-readout">Click a site</span>
+            <span class="classic-map-field-label" id="classic-map-field-label">Sites only</span>
+          </div>
+        </div>
+        <div id="classic-map" class="classic-map"></div>
+        <div class="classic-legend">
+          <span><i class="lg-dot" style="background:#B900C7"></i> UAS this hour</span>
+          <span><i class="lg-dot" style="background:#64748b"></i> no UAS</span>
+          <span><i class="lg-dot" style="background:#fbbf24"></i> selected</span>
+        </div>
+        <div class="classic-controls">
+          <h6>Profile time</h6>
+          <div class="time-play-row mb-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="classic-time-prev" title="Previous time">&lt;</button>
+            <input type="range" class="form-range" id="classic-time-slider" min="0" max="0" value="0" />
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="classic-time-next" title="Next time">&gt;</button>
+          </div>
+          <div class="classic-time-label" id="classic-time-label">—</div>
+
+          <h6>Map plan-view field</h6>
+          <div class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" id="classic-map-field" checked />
+            <label class="form-check-label" for="classic-map-field">Show field on map</label>
+          </div>
+          <label class="form-label" for="classic-map-source">Map source</label>
+          <select class="form-select form-select-sm mb-2" id="classic-map-source"></select>
+          <label class="form-label" for="classic-map-height">Map height AGL <span id="classic-map-height-val">100 m</span></label>
+          <input type="range" class="form-range mb-2" id="classic-map-height" min="0" max="1500" step="10" value="100" />
+
+          <h6>Time–height field</h6>
+          <select class="form-select form-select-sm mb-2" id="classic-field"></select>
+          <label class="form-label" for="classic-cube">Analysis cube</label>
+          <select class="form-select form-select-sm mb-2" id="classic-cube"></select>
+
+          <h6>Time–height layout</h6>
+          <div class="classic-radio-row mb-1">
+            <label><input type="radio" name="classic-th-mode" value="quick" checked /> Quick (OBS | HRRR)</label>
+            <label><input type="radio" name="classic-th-mode" value="custom" /> Custom panels</label>
+          </div>
+          <div id="classic-th-quick-opts" class="mb-2">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="classic-quick-diff" />
+              <label class="form-check-label" for="classic-quick-diff">Show OBS − HRRR difference</label>
+            </div>
+          </div>
+          <div id="classic-th-custom-opts" class="classic-check-grid mb-2" hidden>
+            <label><input type="checkbox" class="classic-th-panel" value="obs" checked /> OBS</label>
+            <label><input type="checkbox" class="classic-th-panel" value="hrrr" checked /> HRRR</label>
+            <label><input type="checkbox" class="classic-th-panel" value="cube" /> Cube</label>
+            <label><input type="checkbox" class="classic-th-panel" value="obs_hrrr" /> OBS − HRRR</label>
+            <label><input type="checkbox" class="classic-th-panel" value="obs_cube" /> OBS − Cube</label>
+            <label><input type="checkbox" class="classic-th-panel" value="hrrr_cube" /> HRRR − Cube</label>
+          </div>
+
+          <h6>Line plot sources</h6>
+          <p class="classic-hint">Toggles overlays on MetPy skew-T, wind, and time series.</p>
+          <div class="classic-check-grid mb-2">
+            <label><input type="checkbox" class="classic-line-src" value="UAS" checked /> UAS</label>
+            <label><input type="checkbox" class="classic-line-src" value="HRRR" /> HRRR</label>
+            <label><input type="checkbox" class="classic-line-src" value="A" /> A</label>
+            <label><input type="checkbox" class="classic-line-src" value="B" /> B</label>
+            <label><input type="checkbox" class="classic-line-src" value="C" /> C</label>
+          </div>
+
+          <h6>Left panel</h6>
+          <div class="classic-radio-row mb-1">
+            <label><input type="radio" name="classic-left-mode" value="skewt" checked /> Skew-T</label>
+            <label><input type="radio" name="classic-left-mode" value="skewt_low" /> Skew-T low</label>
+            <label><input type="radio" name="classic-left-mode" value="timeseries" /> Time series</label>
+          </div>
+          <div id="classic-ts-opts" class="mb-2" hidden>
+            <label class="form-label" for="classic-ts-height">TS height AGL <span id="classic-ts-height-val">100 m</span></label>
+            <input type="range" class="form-range" id="classic-ts-height" min="0" max="1500" step="10" value="100" />
+          </div>
+
+          <h6>Wind panel</h6>
+          <div class="classic-radio-row mb-2">
+            <label><input type="radio" name="classic-wind-mode" value="profile" checked /> Wind profile</label>
+            <label><input type="radio" name="classic-wind-mode" value="hodograph" /> Hodograph</label>
+          </div>
+        </div>
+      </aside>
+
+      <div class="classic-workspace">
+        <section class="classic-th-section">
+          <div class="panel-head">
+            <span class="panel-title">Time–height</span>
+            <div class="panel-head-right">
+              <span class="panel-sub" id="classic-th-subtitle">Click a site</span>
+              <button type="button" class="btn btn-sm btn-export-panel" data-classic-export="th" title="Export PNG">⬇</button>
+            </div>
+          </div>
+          <div id="classic-th-grid" class="classic-th-grid cols-2"></div>
+        </section>
+        <section class="classic-line-section">
+          <div class="classic-line-card">
+            <div class="panel-head">
+              <span class="panel-title" id="classic-left-title">Skew-T</span>
+              <div class="panel-head-right">
+                <span class="panel-sub" id="classic-skewt-sub"></span>
+                <button type="button" class="btn btn-sm btn-export-panel" data-classic-export="skewt" title="Export PNG">⬇</button>
+              </div>
+            </div>
+            <div class="classic-skewt-host classic-line-plot">
+              <div id="classic-skewt-stack" class="classic-skewt-stack" hidden></div>
+              <div id="classic-skewt" class="classic-line-plot classic-skewt-plotly"></div>
+              <div id="classic-skewt-empty" class="classic-empty" hidden>Click a site</div>
+            </div>
+          </div>
+          <div class="classic-line-card">
+            <div class="panel-head">
+              <span class="panel-title" id="classic-wind-title">Wind profile</span>
+              <div class="panel-head-right">
+                <span class="panel-sub" id="classic-wind-sub"></span>
+                <button type="button" class="btn btn-sm btn-export-panel" data-classic-export="wind" title="Export PNG">⬇</button>
+              </div>
+            </div>
+            <div id="classic-wind" class="classic-line-plot"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
     <div class="help-modal" id="help-modal" hidden>
       <div class="help-modal-backdrop" data-help-close></div>
       <div class="help-modal-card" role="dialog" aria-modal="true" aria-labelledby="help-title">
@@ -447,56 +592,54 @@
           <button type="button" class="btn btn-sm btn-outline-secondary" data-help-close aria-label="Close">✕</button>
         </div>
         <div class="help-modal-body">
-          <p class="help-lead">Interactive case viewer for SCALES fusion states vs UAS and HRRR on the Oklahoma domain.</p>
-          <h3>3D view</h3>
+          <p class="help-lead">Interactive case viewer for SCALES fusion states vs UAS and HRRR on the Oklahoma domain. Switch <strong>3D Network</strong> / <strong>2D Site</strong> in the header. Please share comments with the <a href="https://forms.gle/9gQxcdA5und93HGb6" target="_blank" rel="noopener noreferrer">Feedback</a> button (also linked here).</p>
+
+          <h3>2D Site viewer</h3>
           <ul>
-            <li><strong>Orbit</strong> — left-drag to rotate; scroll to zoom; right-drag (or middle-drag) to pan.</li>
-            <li><strong>Probe</strong> — click a profiler marker or any floor point to sample profile, time series, and hodograph at that location (nearby sites snap). Purple pillars = UAS obs available at that valid time; gray = no obs.</li>
-            <li><strong>Z height space</strong> — Flat AGL keeps the floor level; Terrain-following tilts the surface with MSL (Oklahoma outline stays flat).</li>
+            <li><strong>Map</strong> — domain with profiler sites. Optional plan-view field (map source + height AGL); profile time slider drives the hour. Purple = UAS this hour; gray = no obs; gold = selected. Click a site marker.</li>
+            <li><strong>Time–height</strong> — Quick = OBS | HRRR (side-by-side), optional OBS − HRRR. Custom ticks add OBS, HRRR, chosen cube (A/B/C), and pairwise differences. Two panels side-by-side; three or more scroll.</li>
+            <li><strong>Left panel</strong> — MetPy <em>Skew-T</em> (full troposphere), <em>Skew-T low</em> (~1050–680 hPa with UAS surface parcel + CAPE/CIN), or Plotly time series at a chosen height. Line-plot source checkboxes toggle MetPy overlays.</li>
+            <li><strong>Wind panel</strong> — wind profile (speed as lines, direction as points) or hodograph. Same source checkboxes. Profile time is the slider under the map (independent of full-case time–height).</li>
+            <li><strong>Analysis cube</strong> — which A/B/C volume feeds “Cube” time–height panels; overlays still use the source checkboxes.</li>
+          </ul>
+
+          <h3>3D Network viewer</h3>
+          <ul>
+            <li><strong>Orbit</strong> — left-drag rotate; scroll zoom; right-drag (or middle-drag) pan.</li>
+            <li><strong>Probe</strong> — click a profiler marker or floor point for profile, time series, and hodograph (nearby sites snap). Purple pillars = UAS at that valid time; gray = none.</li>
+            <li><strong>Z height space</strong> — Flat AGL keeps the floor level; Terrain-following tilts with MSL (state outline stays flat).</li>
             <li><strong>Camera</strong> — Reset from the south (N up); W from the west; Top bird’s-eye. Compass needle points north.</li>
-            <li><strong>Time</strong> — bar under the map (or in Settings): scrub, play, or use <kbd>&lt;</kbd>/<kbd>&gt;</kbd> buttons. Keys <kbd>,</kbd>/<kbd>.</kbd> (or <kbd>&lt;</kbd>/<kbd>&gt;</kbd>, or ←/→) also step one valid time. Iso-layer values stay fixed while animating.</li>
-            <li><strong>Cross-section</strong> — <em>Spatial</em>: draw two ground points for a transect; Clear removes it. <em>Time–height</em>: field vs height for the active probe across all valid times (same site/grid as profile &amp; time series).</li>
-            <li><strong>Volume / terrain</strong> — multi-layer isosurfaces or a horizontal slice; toggle volume, terrain, geo, sites, and the domain scale box. Terrain opacity is under Layers.</li>
+            <li><strong>Time</strong> — bar under the map (or Settings): scrub, play, <kbd>&lt;</kbd>/<kbd>&gt;</kbd>. Keys <kbd>,</kbd>/<kbd>.</kbd> (or ←/→) step one valid time. Iso-layer values stay fixed while animating.</li>
+            <li><strong>Cross-section</strong> — <em>Spatial</em>: two ground points for a transect (Clear removes it). <em>Time–height</em>: field vs height at the probe across valid times.</li>
+            <li><strong>Volume / terrain</strong> — multi-layer isosurfaces or horizontal slice; toggles for volume, terrain, geo, sites, domain box. Terrain opacity under Layers.</li>
           </ul>
-          <h3>What is plotted</h3>
+
+          <h3>What is plotted (3D)</h3>
           <ul>
-            <li><strong>Fusion state</strong> — which 3D volume is rendered (HRRR / A / B / C). Also sets the default A/B/C series chip (you can then toggle A/B/C freely for overlays on profile &amp; time series).</li>
-            <li><strong>Field</strong> — 3D variable for isosurfaces/slices. Use colormap, vmin/vmax, and contour Δ under Color scale for quantitative coloring.</li>
-            <li><strong>Series variable</strong> — quantity on the <em>profile</em> X-axis and the <em>time series</em> Y-axis (not the 3D field unless you match them).</li>
-            <li><strong>Source chips</strong> (UAS, HRRR, A, B, C) — checkboxes turn series on/off on profile, hodograph, and time series. A/B/C sample the analysis cubes at the probe; UAS comes from obs soundings. Changing Fusion state resets A/B/C to that version by default.</li>
-            <li><strong>Profile / Hodograph</strong> — left-pane selector. Profile = Series variable vs height AGL. Hodograph = wind components <em>u</em> (+east) and <em>v</em> (+north) starting at ≥ 50&nbsp;m AGL; rings are constant speed; open circle marks the first level above that floor.</li>
-            <li><strong>TS height AGL</strong> — extraction height for the time series (slider or typed number).</li>
-            <li><strong>Jump to site</strong> — sets the probe to that profiler.</li>
+            <li><strong>Fusion state</strong> — which 3D volume is drawn (HRRR / A / B / C). Also sets the default A/B/C series chip (you can still toggle A/B/C on profile &amp; time series).</li>
+            <li><strong>Field</strong> — 3D variable for isosurfaces/slices (colormap, vmin/vmax, contour Δ under Color scale).</li>
+            <li><strong>Series variable</strong> — quantity on the profile X-axis and time-series Y-axis (independent of the 3D field unless you match them).</li>
+            <li><strong>Source chips</strong> (UAS, HRRR, A, B, C) — on/off for profile, hodograph, and time series. A/B/C sample cubes at the probe; UAS from soundings.</li>
+            <li><strong>Profile / Hodograph</strong> — left-pane selector. Profile = series vs height AGL. Hodograph = <em>u</em> (+east), <em>v</em> (+north) from ≥ 50&nbsp;m AGL.</li>
+            <li><strong>TS height AGL</strong> — extraction height for the time series.</li>
+            <li><strong>Jump to site</strong> — moves the probe to that profiler.</li>
           </ul>
-          <h3>Colors</h3>
+
+          <h3>Colors &amp; limits</h3>
           <ul>
-            <li><strong>Color scale</strong> — colormap (Viridis, Plasma, …), editable vmin/vmax, contour interval Δ + Apply to fill iso layers, optional “color layers from colormap,” and a polling cursor readout. Cursor x/y follow the pointer; sample height is set only by <em>Poll height AGL</em>.</li>
-            <li><strong>Iso layers</strong> — color picker (disables map coloring), typed iso value, and per-layer opacity.</li>
-            <li><strong>Series colors</strong> — next to each UAS/HRRR/A/B/C chip is a color picker for profile, hodograph, and time series traces (defaults follow Suite 2).</li>
-            <li><strong>Terrain</strong> — monochrome elevation (black low → white high) with optional hillshade; elev. colorbar follows the Colorbars toggle and Terrain on/off.</li>
+            <li><strong>Color scale</strong> — colormap, vmin/vmax, contour Δ, optional map coloring of iso layers, poll cursor (height from <em>Poll height AGL</em>).</li>
+            <li><strong>Iso layers</strong> — per-layer color (disables map coloring), typed iso value, opacity. Levels stay fixed during play.</li>
+            <li><strong>Series colors</strong> — pickers next to UAS/HRRR/A/B/C (Suite 2 defaults).</li>
+            <li><strong>Profile / TS axes</strong> — optional X/Y/Z limits; blank = auto. Vertical exaggeration stretches height in 3D only.</li>
           </ul>
-          <h3>Editable limits &amp; values</h3>
-          <ul>
-            <li><strong>Iso layer values</strong> — type the level; opacity is the slider on that row. Levels stay fixed while time plays.</li>
-            <li><strong>Slice / terrain opacity</strong> — slice mode has a slice opacity slider; terrain has its own control under Layers.</li>
-            <li><strong>Profile axes</strong> — Profile X min/max and Z min/max (AGL). Leave X blank for auto-range; Z defaults 0–1500 m.</li>
-            <li><strong>Time series Y</strong> — optional Y min/max (blank = auto).</li>
-            <li><strong>Vertical exag.</strong> — stretches height in the 3D scene only.</li>
-          </ul>
+
           <h3>Export</h3>
           <ul>
-            <li><strong>Panels</strong> — Export menu or ⬇ on each panel downloads a light-background PNG (profile/hodograph, time series, cross-section / time–height).</li>
-            <li><strong>Field mode</strong> — Isosurfaces / horizontal slice, or <em>OBS profiles</em> (fixed T·RH | WS·WD) / <em>OBS hodographs</em> (no volume). Click the map for a popup sample at any point.</li>
-            <li><strong>3D / 2D map</strong> — Viewport toggle. 2D shows a plan map; in profile/hodograph modes the sticks appear on the map.</li>
-            <li><strong>Plan map export</strong> — lon–lat heatmap at <em>Poll / plan-map height AGL</em> (plus profile/hodo insets when that mode is active).</li>
-            <li><strong>3D view</strong> — PNG of the current camera (isosurfaces or tilted slice as shown). Use <em>light background</em> for slides; keep dark for matching the portal.</li>
+            <li><strong>Panels</strong> — Export menu or ⬇ on a panel → light-background PNG (profile/hodograph, time series, section; 2D Site skew-T composites visible MetPy layers).</li>
+            <li><strong>3D / plan map</strong> — viewport PNG or lon–lat plan map at poll height (with profile/hodo insets when that mode is active).</li>
           </ul>
-          <h3>Bottom panels</h3>
-          <ul>
-            <li><strong>Time series</strong> — enabled sources at TS height for the active probe across valid times.</li>
-            <li><strong>Cross-section</strong> — spatial transect of the current 3D field, or time–height at the probe for the fusion-state field.</li>
-          </ul>
-          <p class="help-foot">Data are a pre-exported case (not a live network feed). Innovations use lagged HRRR backgrounds consistent with the analysis volumes.</p>
+
+          <p class="help-foot">Demo data are a pre-exported case window (not a live network feed). Analyses use lagged HRRR backgrounds consistent with the volumes shown.</p>
         </div>
       </div>
     </div>
@@ -508,7 +651,7 @@
     <span id="view-status" style="display: none" aria-hidden="true"></span>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/sounding_plotter.js?v=20260822n"></script>
-    <script type="module" src="js/portal_app.js?v=20260822n"></script>
+    <script src="js/sounding_plotter.js?v=20260826r"></script>
+    <script type="module" src="js/portal_app.js?v=20260826r"></script>
   </body>
 </html>

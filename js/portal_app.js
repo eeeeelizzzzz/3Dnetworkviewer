@@ -15,6 +15,7 @@ import {
   downloadDataUrl,
   sanitizeFilename,
 } from "./figure_export.js?v=20260822n";
+import { initClassicViewer, resizeClassicViewer } from "./classic_viewer.js?v=20260826r";
 
 const LAYER_COLORS = ["#38bdf8", "#a78bfa", "#34d399", "#fbbf24", "#f472b6"];
 
@@ -1445,6 +1446,34 @@ function stopPlay() {
   app.playTimer = null;
 }
 
+function currentViewerMode() {
+  return document.body.dataset.viewer === "classic" ? "classic" : "network";
+}
+
+async function setViewerMode(mode) {
+  const classic = mode === "classic";
+  document.body.dataset.viewer = classic ? "classic" : "network";
+  const networkBtn = document.getElementById("btn-viewer-network");
+  const classicBtn = document.getElementById("btn-viewer-classic");
+  if (networkBtn) networkBtn.classList.toggle("active", !classic);
+  if (classicBtn) classicBtn.classList.toggle("active", classic);
+  const layout = document.querySelector(".layout");
+  const classicRoot = document.getElementById("classic-root");
+  const brand = document.getElementById("app-brand");
+  if (layout) layout.hidden = classic;
+  if (classicRoot) classicRoot.hidden = !classic;
+  if (brand) brand.textContent = classic ? "2D Site Viewer" : "3D Network Viewer";
+  if (classic) {
+    stopPlay();
+    if (app.meta) {
+      await initClassicViewer(app.meta);
+      requestAnimationFrame(() => resizeClassicViewer());
+    }
+  } else if (app.engine) {
+    app.engine.resize();
+  }
+}
+
 /** Step valid time by ±1 index. Clamps at ends. */
 function stepTime(delta) {
   const times = (app.meta && app.meta.times) || [];
@@ -1485,6 +1514,7 @@ function isTypingTarget(el) {
 
 function onTimeHotkey(e) {
   if (e.defaultPrevented) return;
+  if (document.body.dataset.viewer === "classic") return;
   if (els.helpModal && !els.helpModal.hidden) {
     if (e.key === "Escape") els.helpModal.hidden = true;
     return;
@@ -1917,11 +1947,19 @@ async function init() {
   }
 
   window.addEventListener("resize", () => {
+    if (currentViewerMode() === "classic") {
+      resizeClassicViewer();
+      return;
+    }
     if (app.engine) app.engine.resize();
     ["plotly-sounding", "plotly-ts", "plotly-section", "plotly-plan"].forEach((id) => {
       const el = document.getElementById(id);
       if (el && window.Plotly) Plotly.Plots.resize(el);
     });
+  });
+
+  document.querySelectorAll("[data-viewer-mode]").forEach((btn) => {
+    btn.addEventListener("click", () => setViewerMode(btn.getAttribute("data-viewer-mode")));
   });
 
   if (els.btnHelp && els.helpModal) {

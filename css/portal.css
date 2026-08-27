@@ -708,8 +708,9 @@ body { display: flex; flex-direction: column; min-height: 100vh; overflow: hidde
   .section-panel { grid-column: 1; grid-row: auto; min-height: 24vh; }
 }
 
-/* Header help + modal */
-.btn-help {
+/* Header help + feedback + modal */
+.btn-help,
+.btn-feedback {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -721,6 +722,13 @@ body { display: flex; flex-direction: column; min-height: 100vh; overflow: hidde
   --bs-btn-hover-bg: #243049;
   --bs-btn-hover-border-color: #7dd3fc;
   --bs-btn-hover-color: #fff;
+  text-decoration: none;
+}
+.btn-feedback {
+  --bs-btn-border-color: #64748b;
+}
+.btn-feedback:hover {
+  --bs-btn-border-color: #7dd3fc;
 }
 .help-modal {
   position: fixed;
@@ -787,4 +795,276 @@ body { display: flex; flex-direction: column; min-height: 100vh; overflow: hidde
   margin: 0.85rem 0 0;
   font-size: 0.72rem;
   color: #94a3b8;
+}
+
+.viewer-mode-toggle .btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.2rem 0.65rem;
+}
+.viewer-mode-toggle .btn.active {
+  background: #1e3a5f;
+  border-color: var(--accent);
+  color: #e2e8f0;
+}
+
+body[data-viewer="classic"] .layout {
+  display: none !important;
+}
+
+.classic-root {
+  display: none;
+  height: calc(100vh - var(--header-h));
+  min-height: 0;
+  /* Mid-width sidebar: usable controls, still leaves room for the map */
+  grid-template-columns: minmax(280px, 300px) minmax(0, 1fr);
+  background: var(--bg);
+}
+.classic-root:not([hidden]) {
+  display: grid;
+}
+.classic-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  border-right: 1px solid var(--border);
+  background: var(--panel);
+}
+.classic-map-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding: 0.35rem 0.5rem 0.15rem;
+}
+.classic-map-head-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.classic-kicker {
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+}
+.classic-site-readout {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-align: right;
+}
+.classic-map-field-label {
+  font-size: 0.58rem;
+  color: var(--muted);
+  text-align: right;
+  max-width: 12rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.classic-map {
+  flex: 1.45 1 0;
+  min-height: 240px;
+}
+.classic-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.65rem;
+  padding: 0.15rem 0.5rem 0.25rem;
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+.classic-legend .lg-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.25rem;
+  vertical-align: middle;
+}
+.classic-controls {
+  flex: 0 1 auto;
+  overflow-y: auto;
+  padding: 0.3rem 0.5rem 0.55rem;
+  border-top: 1px solid var(--border);
+  scrollbar-width: thin;
+  max-height: 46%;
+}
+.classic-controls h6 {
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 0.4rem 0 0.25rem;
+  text-transform: uppercase;
+}
+.classic-controls .form-label {
+  color: var(--muted);
+  font-size: 0.68rem;
+  margin-bottom: 0.1rem;
+}
+.classic-hint {
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin: -0.1rem 0 0.25rem;
+  line-height: 1.3;
+}
+.classic-radio-row,
+.classic-check-row,
+.classic-check-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+  font-size: 0.74rem;
+  color: var(--text);
+}
+.classic-check-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.2rem 0.6rem;
+}
+.classic-radio-row label,
+.classic-check-row label,
+.classic-check-grid label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+}
+
+.classic-workspace {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.classic-th-section {
+  flex: 1.15 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel-2);
+}
+.classic-th-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+  padding: 0.35rem 0.5rem 0.65rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  align-content: start;
+}
+.classic-th-grid.cols-1 {
+  grid-template-columns: 1fr;
+}
+.classic-th-grid.cols-2 {
+  grid-template-columns: 1fr 1fr;
+}
+.classic-th-cell {
+  position: relative;
+  width: 100%;
+  height: clamp(220px, 28vh, 320px);
+  min-height: 220px;
+  overflow: hidden;
+  border: 1px solid rgba(51, 65, 85, 0.55);
+  border-radius: 4px;
+  background: rgba(11, 18, 32, 0.35);
+}
+.classic-th-grid.cols-1 .classic-th-cell {
+  height: clamp(240px, 36vh, 360px);
+}
+.classic-th-plot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  overflow: hidden;
+}
+.classic-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 1.5rem;
+}
+.classic-line-section {
+  flex: 1 1 0;
+  min-height: 280px;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.classic-line-card {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  background: var(--panel);
+}
+.classic-line-card:last-child { border-right: none; }
+.classic-line-plot {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 240px;
+  height: 100%;
+}
+.classic-skewt-host {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: rgba(11, 18, 32, 0.45);
+  padding: 0;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+}
+.classic-skewt-stack {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.classic-skewt-layer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+.classic-skewt-layer.is-grid {
+  position: absolute;
+}
+.classic-skewt-plotly {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.classic-skewt-host .classic-empty {
+  position: absolute;
+  inset: 0;
+}
+
+@media (max-width: 1100px) {
+  .classic-root:not([hidden]) {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(260px, 38%) 1fr;
+  }
+  .classic-line-section { grid-template-columns: 1fr; }
+  .classic-controls { max-height: none; }
 }
