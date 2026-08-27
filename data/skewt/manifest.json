@@ -1,0 +1,39 @@
+{
+  "pattern": "skewt/{tag}/{site}/{layer}.png",
+  "layers": [
+    "grid",
+    "UAS",
+    "HRRR",
+    "A",
+    "B",
+    "C"
+  ],
+  "view": "full",
+  "interactive": true,
+  "times": [
+    "20240912_2300",
+    "20240913_0000",
+    "20240913_0100",
+    "20240913_0200",
+    "20240913_0300",
+    "20240913_0400",
+    "20240913_0500",
+    "20240913_0600"
+  ],
+  "sites": [
+    "BIXB",
+    "BLAC",
+    "CHAN",
+    "GUTH",
+    "NRMN",
+    "OKEM",
+    "SKIA",
+    "STILL",
+    "URB_S_UP",
+    "WASH",
+    "WYNO"
+  ],
+  "renderer": "metpy.plots.SkewT",
+  "rotation_deg": 30,
+  "elev_msl_m": 320.0
+}
